@@ -18,7 +18,7 @@ object DefaultPromptTemplate {
     private const val DEFAULT_TEMPLATE = """
 修复文件路径 ${'$'}{filePath} 中 ${'$'}{startLine}-${'$'}{endLine} 行的代码问题：
 
-${'$'}{diagnosticText}
+${'$'}{userInput}
 
 ```
 ${'$'}{selectedText}
@@ -37,7 +37,7 @@ ${'$'}{selectedText}
     private const val SIMPLE_TEMPLATE = """
 修复文件路径 ${'$'}{filePath} 中 ${'$'}{startLine}-${'$'}{endLine} 行的代码问题：
 
-${'$'}{diagnosticText}
+${'$'}{userInput}
 
 请：
 1. 解决上述列出的所有已发现问题（如有）
@@ -73,7 +73,6 @@ ${'$'}{diagnosticText}
     private fun renderTemplate(template: String, context: FixContext): String {
         // 处理可能的 null 值
         val safeContext = context.copy(
-            diagnosticText = context.diagnosticText.ifBlank { "代码可能存在潜在问题" },
             selectedText = context.selectedText.ifBlank { "// 无选中代码" }
         )
 
@@ -82,7 +81,6 @@ ${'$'}{diagnosticText}
             .replace("\${filePath}", safeContext.filePath)
             .replace("\${startLine}", safeContext.startLine.toString())
             .replace("\${endLine}", safeContext.endLine.toString())
-            .replace("\${diagnosticText}", safeContext.diagnosticText)
             .replace("\${selectedText}", safeContext.selectedText)
             .replace("\${userInput}", safeContext.userInput)
 
@@ -103,9 +101,8 @@ ${'$'}{diagnosticText}
             "filePath" to "文件路径",
             "startLine" to "起始行号",
             "endLine" to "结束行号",
-            "diagnosticText" to "诊断信息（错误或警告描述）",
             "selectedText" to "选中的代码文本",
-            "userInput" to "用户输入（当前为空）"
+            "userInput" to "用户输入（从剪贴板读取的错误信息）"
         )
     }
 }

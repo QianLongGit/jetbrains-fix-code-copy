@@ -20,7 +20,7 @@ class DefaultPromptTemplateTest {
             endLine = 15,
             diagnosticText = "缺少分号",
             selectedText = "System.out.println(\"hello\")",
-            userInput = ""
+            userInput = "缺少分号"
         )
 
         // 渲染模板
@@ -35,7 +35,7 @@ class DefaultPromptTemplateTest {
         // 确保模板变量不被替换
         assertFalse(result.contains("\${filePath}"))
         assertFalse(result.contains("\${startLine}"))
-        assertFalse(result.contains("\${diagnosticText}"))
+        assertFalse(result.contains("\${userInput}"))
         assertFalse(result.contains("\${selectedText}"))
     }
 
@@ -47,7 +47,7 @@ class DefaultPromptTemplateTest {
             endLine = 5,
             diagnosticText = "语法错误",
             selectedText = "",
-            userInput = ""
+            userInput = "语法错误"
         )
 
         val result = DefaultPromptTemplate.render(context)
@@ -59,7 +59,7 @@ class DefaultPromptTemplateTest {
     }
 
     @Test
-    fun testTemplateHandlesNullDiagnostic() {
+    fun testTemplateHandlesEmptyUserInput() {
         val context = FixContext(
             filePath = "/test.js",
             startLine = 1,
@@ -71,7 +71,9 @@ class DefaultPromptTemplateTest {
 
         val result = DefaultPromptTemplate.render(context)
 
-        // 应该提供默认的诊断信息
-        assertTrue(result.contains("代码可能存在潜在问题"))
+        // 应该处理空的 userInput
+        assertTrue(result.contains("/test.js"))
+        assertTrue(result.contains("1-1"))
+        assertTrue(result.contains("let x = 1"))
     }
 }

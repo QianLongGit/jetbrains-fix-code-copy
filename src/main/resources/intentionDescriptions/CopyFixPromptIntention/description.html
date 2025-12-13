@@ -8,16 +8,26 @@
 <ul>
     <li>自动获取当前文件路径和行号</li>
     <li>提取选中的代码或当前行内容</li>
+    <li>自动集成剪贴板中的错误信息</li>
     <li>生成包含上下文信息的修复提示</li>
     <li>一键复制到剪贴板</li>
 </ul>
 
 <h3>使用步骤：</h3>
 <ol>
+    <li><strong>复制 IDE 中的错误信息（Ctrl+C）</strong></li>
     <li>将光标放在需要修复的代码行</li>
     <li>按 Alt+Enter 打开意图菜单</li>
     <li>选择"复制修复 Prompt"</li>
     <li>将剪贴板内容粘贴到 AI 工具（如 Claude Code）</li>
 </ol>
+
+<h3>提示：</h3>
+<ul>
+    <li><strong>使用前请先复制 IDE 中的错误信息到剪贴板</strong></li>
+    <li>错误信息可以是编译错误、警告或异常信息</li>
+    <li>生成的 Prompt 将自动包含剪贴板中的错误描述</li>
+    <li>支持各种编程语言的错误信息</li>
+</ul>
 </body>
 </html>

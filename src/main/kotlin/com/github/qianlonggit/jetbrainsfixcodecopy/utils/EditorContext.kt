@@ -1,5 +1,6 @@
 package com.github.qianlonggit.jetbrainsfixcodecopy.utils
 
+import com.github.qianlonggit.jetbrainsfixcodecopy.services.ClipboardService
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
@@ -47,7 +48,7 @@ object EditorContext {
             endLine = endLine,
             diagnosticText = diagnosticText,
             selectedText = selectedText,
-            userInput = "" // 根据需求，userInput 为固定空字符串
+            userInput = ClipboardService.getInstance().getClipboardContent()?.trim() ?: ""
         )
     }
 

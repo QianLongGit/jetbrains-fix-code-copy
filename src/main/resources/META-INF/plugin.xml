@@ -1,15 +1,41 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.qianlonggit.jetbrainsfixcodecopy</id>
-    <name>jetbrains-fix-code-copy</name>
-    <vendor>qianlonggit</vendor>
+    <name>Fix Code Copy</name>
+    <vendor email="qianlonggit@example.com" url="https://github.com/qianlonggit/jetbrains-fix-code-copy">qianlonggit
+    </vendor>
 
+    <!-- 必要的依赖 -->
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lang</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
+    <!-- 插件描述 -->
+    <description><![CDATA[
+        <p><strong>Fix Code Copy</strong> - Easily Copy Code Issues to AI Tools</p>
+        <p>When you encounter code errors or need optimization, simply press Alt+Enter and select "Copy Fix Prompt" to generate a structured prompt containing file path, line number, and error information. Works perfectly with AI tools like Claude Code, ChatGPT, and more, making code fixing easier than ever!</p>
+        <p><em>Key Features:</em></p>
+        <ul>
+            <li>✅ One-click copy of structured fix prompts</li>
+            <li>✅ Automatically extract file path and line number</li>
+            <li>✅ Support for all languages including Java, Kotlin, Python, JavaScript</li>
+            <li>✅ Intelligent syntax error detection</li>
+        </ul>
+    ]]></description>
+
+    <!-- 插件版本信息 -->
+    <idea-version since-build="252" until-build="261.*"/>
+
+    <!-- 扩展点注册 -->
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.qianlonggit.jetbrainsfixcodecopy.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-        <postStartupActivity implementation="com.github.qianlonggit.jetbrainsfixcodecopy.startup.MyProjectActivity" />
+        <!-- 注册复制修复 Prompt 的意图动作 -->
+        <intentionAction>
+            <className>com.github.qianlonggit.jetbrainsfixcodecopy.intention.CopyFixPromptIntention</className>
+            <category>General</category>
+            <!-- descriptionDirectoryName 必须与类名匹配 -->
+            <descriptionDirectoryName>CopyFixPromptIntention</descriptionDirectoryName>
+            <!-- 不指定 language，让它适用于所有语言 -->
+        </intentionAction>
     </extensions>
 </idea-plugin>

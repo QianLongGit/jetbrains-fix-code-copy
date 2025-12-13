@@ -1,39 +1,75 @@
 package com.github.qianlonggit.jetbrainsfixcodecopy
 
-import com.intellij.ide.highlighter.XmlFileType
-import com.intellij.openapi.components.service
-import com.intellij.psi.xml.XmlFile
-import com.intellij.testFramework.TestDataPath
+import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.psi.PsiFile
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import com.intellij.util.PsiErrorElementUtil
-import com.github.qianlonggit.jetbrainsfixcodecopy.services.MyProjectService
+import com.github.qianlonggit.jetbrainsfixcodecopy.intention.CopyFixPromptIntention
 
-@TestDataPath("\$CONTENT_ROOT/src/test/testData")
+/**
+ * 插件功能测试
+ */
 class MyPluginTest : BasePlatformTestCase() {
 
-    fun testXMLFile() {
-        val psiFile = myFixture.configureByText(XmlFileType.INSTANCE, "<foo>bar</foo>")
-        val xmlFile = assertInstanceOf(psiFile, XmlFile::class.java)
+    /**
+     * 测试 CopyFixPromptIntention 是否可以正确识别并显示
+     */
+    fun testCopyFixPromptIntentionAvailable() {
+        // 创建一个有语法错误的 Java 代码
+        val code = """
+            public class Test {
+                public void method() {
+                    System.out.println("hello"  // 缺少分号
+                }
+            }
+        """.trimIndent()
 
-        assertFalse(PsiErrorElementUtil.hasErrors(project, xmlFile.virtualFile))
+        // 配置文件内容
+        val psiFile = myFixture.configureByText("Test.java", code)
 
-        assertNotNull(xmlFile.rootTag)
+        // 创建意图动作实例
+        val intention = CopyFixPromptIntention()
 
-        xmlFile.rootTag?.let {
-            assertEquals("foo", it.name)
-            assertEquals("bar", it.value.text)
-        }
+        // 测试意图动作是否可用
+        assertTrue("Intention should be available for code with potential issues",
+                   intention.isAvailable(project, myFixture.editor, psiFile))
     }
 
-    fun testRename() {
-        myFixture.testRename("foo.xml", "foo_after.xml", "a2")
+    /**
+     * 测试 IntentionAction 的文本和族名
+     */
+    fun testIntentionText() {
+        val intention = CopyFixPromptIntention()
+
+        assertEquals("复制修复 Prompt", intention.getText())
+        assertEquals("Copy Fix Prompt", intention.getFamilyName())
+        assertFalse("Should not require write action", intention.startInWriteAction())
     }
 
-    fun testProjectService() {
-        val projectService = project.service<MyProjectService>()
+    /**
+     * 测试在空文件中意图动作不可用
+     */
+    fun testIntentionNotAvailableInEmptyFile() {
+        val psiFile = myFixture.configureByText("Empty.java", "")
+        val intention = CopyFixPromptIntention()
 
-        assertNotSame(projectService.getRandomNumber(), projectService.getRandomNumber())
+        assertFalse("Intention should not be available in empty file",
+                   intention.isAvailable(project, myFixture.editor, psiFile))
     }
 
-    override fun getTestDataPath() = "src/test/testData/rename"
+    /**
+     * 测试在注释中意图动作的可用性
+     */
+    fun testIntentionInComment() {
+        val code = """
+            // This is a comment line
+            public class Test {}
+        """.trimIndent()
+
+        val psiFile = myFixture.configureByText("Test.java", code)
+        val intention = CopyFixPromptIntention()
+
+        // 即使是注释，也应该可用（提供分析功能）
+        assertTrue("Intention should be available in comments",
+                   intention.isAvailable(project, myFixture.editor, psiFile))
+    }
 }

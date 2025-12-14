@@ -17,9 +17,9 @@ object DefaultPromptTemplate {
      */
     private const val DEFAULT_TEMPLATE = """
 修复文件路径 ${'$'}{filePath} 中 ${'$'}{startLine}-${'$'}{endLine} 行的代码问题：
-
 ${'$'}{userInput}
 
+问题代码：
 ```
 ${'$'}{selectedText}
 ```
@@ -36,7 +36,6 @@ ${'$'}{selectedText}
      */
     private const val SIMPLE_TEMPLATE = """
 修复文件路径 ${'$'}{filePath} 中 ${'$'}{startLine}-${'$'}{endLine} 行的代码问题：
-
 ${'$'}{userInput}
 
 请：
@@ -102,7 +101,7 @@ ${'$'}{userInput}
             "startLine" to "起始行号",
             "endLine" to "结束行号",
             "selectedText" to "选中的代码文本",
-            "userInput" to "用户输入（从剪贴板读取的错误信息）"
+            "userInput" to "错误信息（自动获取 IDE 中的错误描述或从剪贴板读取）"
         )
     }
 }

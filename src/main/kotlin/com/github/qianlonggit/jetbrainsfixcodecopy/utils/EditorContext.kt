@@ -41,6 +41,9 @@ object EditorContext {
         // 获取诊断信息
         val diagnosticText = extractDiagnosticText(file, caretOffset)
 
+        // 自动获取错误信息作为 userInput
+        val userInput = extractErrorUserInput(editor, file)
+
         // 返回上下文信息
         return FixContext(
             filePath = filePath,
@@ -48,7 +51,7 @@ object EditorContext {
             endLine = endLine,
             diagnosticText = diagnosticText,
             selectedText = selectedText,
-            userInput = ClipboardService.getInstance().getClipboardContent()?.trim() ?: ""
+            userInput = userInput
         )
     }
 
@@ -101,6 +104,27 @@ object EditorContext {
             val lineNumber = document.getLineNumber(caretOffset)
             return Pair(lineNumber + 1, lineNumber + 1) // 转换为 1-based
         }
+    }
+
+    /**
+     * 提取错误用户输入
+     * 优先获取光标位置的自动错误信息，降级使用剪贴板内容
+     */
+    private fun extractErrorUserInput(editor: Editor, file: PsiFile): String {
+        // 首先尝试获取自动错误信息
+        try {
+            val autoErrorInfo = DiagnosticUtils.getErrorInfoAtCursor(file, editor)
+            if (autoErrorInfo.isNotBlank() && !autoErrorInfo.equals("代码可能存在潜在问题，请检查语法、类型、逻辑等方面")) {
+                return autoErrorInfo
+            }
+        } catch (e: Exception) {
+            // 如果自动获取失败，记录日志但不中断流程
+            com.intellij.openapi.diagnostic.Logger.getInstance(EditorContext::class.java)
+                .warn("自动获取错误信息失败，降级使用剪贴板", e)
+        }
+
+        // 降级方案：使用剪贴板内容
+        return ClipboardService.getInstance().getClipboardContent()?.trim() ?: ""
     }
 
     /**
